@@ -35,6 +35,11 @@ class Machine(models.Model):
 
 class Usine(Local):
     machines = models.ManyToManyField(Machine)
+    
+    def prix_terrain(self):
+        return self.prix_m2* self.surface
+
+    
 
     def __str__(self):
         return self.ville.nom
