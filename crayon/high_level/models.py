@@ -20,7 +20,7 @@ class Local(models.Model):
         abstract = True
 
 
-class SiegeSocial(models.Local):
+class SiegeSocial(Local):
     pass
 
 
@@ -33,8 +33,8 @@ class Machine(models.Model):
         return self.nom
 
 
-class Usine(models.Local):
-    machines = models.ForeignKey(Machine, on_delete=models.CASCADE)
+class Usine(Local):
+    machines = models.ManyToManyField(Machine)
 
     def __str__(self):
         return self.ville.nom
@@ -51,16 +51,9 @@ class Objet(models.Model):
         abstract = True
 
 
-class Stock(models.Model):
-    objet = models.ForeignKey(Objet, on_delete=models.CASCADE)
-    nombre = models.IntegerField(max_length=100)
-
+class Ressource(Objet):
     def __str__(self):
-        return self.nombre
-
-
-class Ressource(models.Oblect):
-    pass
+        return self.nom
 
 
 class QuantiteRessource(models.Model):
@@ -68,7 +61,7 @@ class QuantiteRessource(models.Model):
     quantite = models.IntegerField(max_length=100)
 
     def __str__(self):
-        return self.quantite
+        return self.ressource.nom
 
 
 class Etape(models.Model):
@@ -76,11 +69,22 @@ class Etape(models.Model):
     machine = models.ForeignKey(Machine, on_delete=models.PROTECT)
     quantite_ressource = models.ForeignKey(QuantiteRessource, on_delete=models.PROTECT)
     duree = models.IntegerField(max_length=100)
-    # mettre etape suivante et fonction str
+    etape_suivante = models.ForeignKey("self",blank=True, null =True, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.nom
+
+class Stock(models.Model):
+    ressource = models.ForeignKey(Ressource, on_delete=models.CASCADE)
+    nombre = models.IntegerField(max_length=100)
+    usine = models.ForeignKey(Usine, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.ressource.nom
 
 
-class Produit(models.Objet):
+class Produit(Objet):
     premiere_etape = models.CharField(max_length=1000)
 
     def __str__(self):
-        return self.premiere_etape
+        return self.nom
