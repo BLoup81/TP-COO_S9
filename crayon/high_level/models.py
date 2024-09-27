@@ -34,10 +34,15 @@ class SiegeSocial(Local):
 class Machine(models.Model):
     nom = models.CharField(max_length=100)
     prix = models.IntegerField(max_length=100)
-    n_serie = models.IntegerField(max_length=100)
+    n_serie = models.CharFieldField(max_length=100)
 
     def __str__(self):
         return self.nom
+
+    def json(self):
+        d = {'Nom':self.nom, 'Prix':self.prix, 'Num_serie':self.n_serie}
+        return d
+
 
 
 class Usine(Local):
@@ -51,6 +56,7 @@ class Usine(Local):
     def __str__(self):
         return self.ville.nom
 
+     #???
 
 class Objet(models.Model):
     nom = models.CharField(max_length=100)
@@ -63,10 +69,16 @@ class Objet(models.Model):
         abstract = True
 
 
+
+
 class Ressource(Objet):
     def __str__(self):
         return self.nom
 
+     
+    def json(self):
+        d = {'Nom':self.nom, 'Prix':self.prix}
+        return d
 
 class QuantiteRessource(models.Model):
     ressource = models.ForeignKey(Ressource, on_delete=models.CASCADE)
@@ -75,6 +87,10 @@ class QuantiteRessource(models.Model):
     def __str__(self):
         return self.ressource.nom
 
+     
+    def json(self):
+        d = {'Nom':self.ressource.nom, 'Quantite':self.quantite}
+        return d
 
 class Etape(models.Model):
     nom = models.CharField(max_length=100)
@@ -86,6 +102,11 @@ class Etape(models.Model):
     def __str__(self):
         return self.nom
 
+     
+    def json(self):
+        d = {'Nom':self.nom, 'Machine':self.machine.nom , 'Qantite ressource'=self.quantite_ressource.json(), 'duree'=self.duree, 'Etape suivante'=self.etape_suivante.nom}
+        return d
+
 class Stock(models.Model):
     ressource = models.ForeignKey(Ressource, on_delete=models.CASCADE)
     nombre = models.IntegerField(max_length=100)
@@ -94,9 +115,18 @@ class Stock(models.Model):
     def __str__(self):
         return self.ressource.nom
 
+     
+    def json(self):
+        d = {'Ressource':self.ressource.nom, 'Numbre':self.nombre, 'Usine':self.usine.json()}
+        return d
 
 class Produit(Objet):
     premiere_etape = models.CharField(max_length=1000)
 
     def __str__(self):
         return self.nom
+
+ 
+    def json(self):
+        d = {'Premiere Etape':self.premiere_etape.nom}
+        return d
