@@ -1,5 +1,6 @@
 # Create your models here.
 from django.db import models
+import json
 
 
 class Ville(models.Model):
@@ -9,6 +10,15 @@ class Ville(models.Model):
 
     def __str__(self):
         return self.nom
+
+    def json(self):
+        d = "{nom, CP}"
+        
+        """{"nom" = self.nom,
+            "CP" = self.code_postal,
+            "prix_m2" = self.prix_m2
+            }"""
+        return json.dumps(d)
 
 
 class Local(models.Model):
@@ -48,7 +58,7 @@ class Usine(Local):
 class Objet(models.Model):
     nom = models.CharField(max_length=100)
     prix = models.IntegerField(max_length=100)
-
+ 
     def __str__(self):
         return self.nom
 
