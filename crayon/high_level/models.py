@@ -12,13 +12,8 @@ class Ville(models.Model):
         return self.nom
 
     def json(self):
-        d = "{nom, CP}"
-        
-        """{"nom" = self.nom,
-            "CP" = self.code_postal,
-            "prix_m2" = self.prix_m2
-            }"""
-        return json.dumps(d)
+        d = {'Nom':self.nom, 'Code postal':self.code_postal, 'Prix/m2':self.prix_m2}
+        return d
 
 
 class Local(models.Model):
@@ -31,7 +26,9 @@ class Local(models.Model):
 
 
 class SiegeSocial(Local):
-    pass
+    def json(self):
+        d = {'Nom':self.nom, 'Ville':self.ville, 'Surface':self.surface}
+        return d
 
 
 class Machine(models.Model):
