@@ -21,5 +21,5 @@ from high_level import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('ville/<int:pk>/', views.viewVille.as_view(), name='ville'),
+    path("ville/<int:pk>/", views.viewVille.as_view(), name="ville"),
 ]
