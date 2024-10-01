@@ -160,7 +160,7 @@ class Produit(Objet):
 
 class Usine(Local):
     machines = models.ManyToManyField(Machine)
-    stock = models.ForeignKey(Stock, on_delete=models.PROTECT)
+    stock = models.ForeignKey(Stock, null=True, on_delete=models.PROTECT)
 
     def costs(self):
         cout = self.surface * self.ville.prix_m2
@@ -168,7 +168,7 @@ class Usine(Local):
         for i in range(len(machi)):
             cout += machi[i].costs()
             print("plus 1")
-        return cout  # + self.stock.costs()
+        return cout + self.stock.costs()
 
     def __str__(self):
         return self.nom
