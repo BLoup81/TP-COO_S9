@@ -25,6 +25,9 @@ class Local(models.Model):
 
 
 class SiegeSocial(Local):
+    def __str__(self):
+        return self.nom
+
     def json(self):
         d = {"Nom": self.nom, "Ville": self.ville, "Surface": self.surface}
         return d
@@ -71,7 +74,7 @@ class QuantiteRessource(models.Model):
     quantite = models.IntegerField(max_length=100)
 
     def __str__(self):
-        return self.ressource.nom
+        return self.ressource.nom + " : " + str(self.quantite)
 
     def json(self):
         d = {"Nom": self.ressource.nom, "Quantite": self.quantite}
@@ -110,9 +113,23 @@ class Stock(models.Model):
     )  # Quantité d'une ressource
     nombre = models.IntegerField(max_length=100)  # Nombre de ressources différentes
 
-    # def __str__(self):
-    #    QTressource = self.quantiteRessource.all()
-    #   return self.quantiteRessource[1].ressource.nom
+    def __str__(self):
+        QTressource = self.quantiteRessource.all()
+        name = (
+            "stock("
+            + QTressource[0].ressource.nom
+            + " : "
+            + str(QTressource[0].quantite)
+        )
+        for i in range(1, len(QTressource)):
+            name = (
+                name
+                + ", "
+                + QTressource[i].ressource.nom
+                + " : "
+                + str(QTressource[i].quantite)
+            )
+        return name + ")"
 
     def costs(self):
         cout: int = 0
@@ -143,7 +160,7 @@ class Produit(Objet):
 
 class Usine(Local):
     machines = models.ManyToManyField(Machine)
-    # stock = models.ForeignKey(Stock, on_delete=models.PROTECT)
+    stock = models.ForeignKey(Stock, on_delete=models.PROTECT)
 
     def costs(self):
         cout = self.surface * self.ville.prix_m2
@@ -154,4 +171,4 @@ class Usine(Local):
         return cout  # + self.stock.costs()
 
     def __str__(self):
-        return self.ville.nom
+        return self.nom
