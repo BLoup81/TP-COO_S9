@@ -4,8 +4,10 @@
 #include <string.h>
 
 #include <iostream>
+#include <nlohmann/json.hpp>
 
 using namespace std;
+using json = nlohmann::json;
 
 class Ville {
  private:
@@ -15,9 +17,9 @@ class Ville {
 
  public:
   Ville(int _code_postal, string _nom, int _prix_m2);
+  Ville(int id);
   auto getName() -> string;
-  // ostream& operator<<(ostream& os);
-  void __str__();
+  auto jsonVille();  // Communication entre python et C++
 };
 
 Ville::Ville(int _code_postal, string _nom, int _prix_m2) {
@@ -28,30 +30,27 @@ Ville::Ville(int _code_postal, string _nom, int _prix_m2) {
 
 auto Ville::getName() -> string { return nom; }
 
-void Ville::__str__() {
-  cpr::Response r =
-      cpr::Get(cpr::Url{"http://localhost:8000/admin/"},
-               cpr::Parameters{{"ville", "true"}, {"key", "value"}});
-  r.status_code;
-  r.header["content-type"];
+Ville::Ville(int id) {
+  cpr::Response r = cpr::Get(
+      cpr::Url{"http://localhost:8000/ville/" + to_string(id) +
+               "/"});  //,
+                       // cpr::Parameters{{"ville", "true"}, {"key", "value"}});
+  // r.status_code;
+  // r.header["content-type"];
   r.text;
-  cout << r.text << endl;
+  // cout << r.text << endl;
 }
 
-/*
-ostream& operator<<(ostream& os, const Date& dt)
-{
-    os << dt.mo << '/' << dt.da << '/' << dt.yr;
-    return os;
+auto jsonVille() {
+  json j;
+  j["Nom"] = nom;
+  j["Code postal"] = code_postal;
+  j["Prix/m2"] = prix_m2;
 }
-*/
-
-// CurlContainer<T>::CurlContainer(const std::initializer_list<T>&
-// containerList) : containerList_(containerList) {}
 
 int main() {
-  Ville V1(31000, "Toulouse", 2000);
-  V1.__str__();
+  Ville V1(3100, "Toulouse", 2000);
+  Ville V2(1);
 
   return 0;
 }

@@ -23,56 +23,16 @@ from high_level import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("ville/<int:pk>/", views.viewVille.as_view(), name="ville"),
-]
-
-# Usine
-urlpatterns = [
-    path("admin/", admin.site.urls),
     path("usine/<int:pk>/", views.viewUsine.as_view(), name="usine"),
-]
-
-# Stock
-urlpatterns = [
-    path("admin/", admin.site.urls),
     path("stock/<int:pk>/", views.viewStock.as_view(), name="stock"),
-]
-
-# Machine
-urlpatterns = [
-    path("admin/", admin.site.urls),
     path("machine/<int:pk>/", views.viewMachine.as_view(), name="machine"),
-]
-
-# SiegeSocial
-urlpatterns = [
-    path("admin/", admin.site.urls),
     path("siegesocial/<int:pk>/", views.viewSiegeSocial.as_view(), name="siege social"),
-]
-
-# Ressource
-urlpatterns = [
-    path("admin/", admin.site.urls),
     path("ressource/<int:pk>/", views.viewRessource.as_view(), name="ressource"),
-]
-
-# QuantiteRessource
-urlpatterns = [
-    path("admin/", admin.site.urls),
     path(
         "quatiteressource/<int:pk>/",
         views.viewQuantiteRessource.as_view(),
         name="quantite ressource",
     ),
-]
-
-# Etape
-urlpatterns = [
-    path("admin/", admin.site.urls),
     path("etape/<int:pk>/", views.viewEtape.as_view(), name="etape"),
-]
-
-# Produit
-urlpatterns = [
-    path("admin/", admin.site.urls),
     path("produit/<int:pk>/", views.viewProduit.as_view(), name="produit"),
 ]
