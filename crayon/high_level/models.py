@@ -108,39 +108,18 @@ class Etape(models.Model):
 
 
 class Stock(models.Model):
-    quantiteRessource = models.ManyToManyField(
-        QuantiteRessource
-    )  # Quantité d'une ressource
+    ressource = models.ForeignKey(Ressource, null=True, on_delete=models.CASCADE)
     nombre = models.IntegerField(max_length=100)  # Nombre de ressources différentes
 
     def __str__(self):
-        QTressource = self.quantiteRessource.all()
-        name = (
-            "stock("
-            + QTressource[0].ressource.nom
-            + " : "
-            + str(QTressource[0].quantite)
-        )
-        for i in range(1, len(QTressource)):
-            name = (
-                name
-                + ", "
-                + QTressource[i].ressource.nom
-                + " : "
-                + str(QTressource[i].quantite)
-            )
-        return name + ")"
+        return self.ressource.nom + " (" + str(self.nombre) + ")"
 
     def costs(self):
-        cout: int = 0
-        QTressource = self.quantiteRessource.all()
-        for i in range(len(QTressource)):
-            cout += QTressource[i].costs()
-        return cout
+        return self.ressource.prix * self.nombre
 
     def json(self):
         d = {
-            "Ressource": self.QTressource.nom,
+            "Ressource": self.ressource.nom,
             "Nombre": self.nombre,
             "Usine": self.usine.json(),
         }
@@ -160,15 +139,20 @@ class Produit(Objet):
 
 class Usine(Local):
     machines = models.ManyToManyField(Machine)
-    stock = models.ForeignKey(Stock, null=True, on_delete=models.PROTECT)
+    stock = models.ManyToManyField(Stock)
 
     def costs(self):
         cout = self.surface * self.ville.prix_m2
+
+        stockage = self.stock.all()
+        for i in range(len(stockage)):
+            cout += stockage[i].costs()
+
         machi = self.machines.all()
         for i in range(len(machi)):
             cout += machi[i].costs()
-            print("plus 1")
-        return cout + self.stock.costs()
+
+        return cout
 
     def __str__(self):
         return self.nom

@@ -10,27 +10,52 @@ class MachineModelTests(TestCase):
         self.assertEqual(Machine.objects.count(), 1)
 
 
+class QuantiteRessourceModelTests(TestCase):
+    def test_quantite_ressource_creation(self):
+        self.assertEqual(QuantiteRessource.objects.count(), 0)
+        ressource1 = Ressource.objects.create(nom="bois", prix=100)
+        QuantiteRessource.objects.create(quantite=20, ressource=ressource1)
+        self.assertEqual(QuantiteRessource.objects.count(), 1)
+
+
 class UsineCostTests(TestCase):
     def test_usine_creation(self):
-        self.assertEqual(Usine.objects.count(), 0)
-        self.ressource1 = Ressource.objects.create(nom="bois", prix=10)
-        self.ressource2 = Ressource.objects.create(nom="mine", prix=15)
-        self.quantiteR1 = QuantiteRessource.objects.create(quantite=1_000)
-        self.quantiteR1.ressource.add(self.ressource1)
-        self.quantiteR1 = QuantiteRessource.objects.create(quantite=50)
-        self.quantiteR2.ressource.add(self.ressource2)
-        self.stock = Stock.objects.create(nombre=2)
-        self.stock.add(self.quantiteR1, self.quantiteR2)
+        self.assertEqual(Usine.objects.count(), 0)  # Verification nombre usine = 0
+        self.assertEqual(
+            Ressource.objects.count(), 0
+        )  # Verification nombre ressource = 0
+        self.assertEqual(Stock.objects.count(), 0)  # Verification nombre stock = 0
+        self.assertEqual(Ville.objects.count(), 0)  # Verification nombre ville = 0
+        self.assertEqual(Machine.objects.count(), 0)  # Verification nombre machine = 0
+        self.ressource1 = Ressource.objects.create(
+            nom="bois", prix=10
+        )  # Creation de la ressource bois
+        self.ressource2 = Ressource.objects.create(
+            nom="mine", prix=15
+        )  # Creation de la ressource mine
+        self.stock1 = Stock.objects.create(
+            nombre=1_000, ressource=self.ressource1
+        )  # Creation stock de bois
+        self.stock2 = Stock.objects.create(
+            nombre=50, ressource=self.ressource2
+        )  # Creation stock de mine
         self.ville = Ville.objects.create(
             nom="Toulouse", prix_m2=2_000, code_postal=31_000
-        )
-        self.machine1 = Machine.objects.create(nom="scie", prix=1_000, n_serie="15655")
+        )  # Creation de la ville
+        self.machine1 = Machine.objects.create(
+            nom="scie", prix=1_000, n_serie="15655"
+        )  # Creation de la machine 1
         self.machine2 = Machine.objects.create(
             nom="perceuse", prix=2_000, n_serie="654484"
-        )
-        self.usine = Usine.objects.create(nom="airb", surface=50)
-        self.usine.ville.add(self.ville)
-        self.usine.stock.add(self.stock)
-        self.usine.machine1.add(self.machine1, self.machine2)
-        self.assertEqual(Usine.costs(), 113750)
-        self.assertEqual(Usine.object.count(), 1)
+        )  # Creation de la machine 2
+        self.usine = Usine.objects.create(
+            nom="airb", surface=50, ville=self.ville
+        )  # Creation de l'usine
+        self.usine.machines.add(
+            self.machine1, self.machine2
+        )  # Ajout des machines a l'usine
+        self.usine.stock.add(self.stock1, self.stock2)  # Ajout des stocks a l'usine
+        self.assertEqual(self.usine.costs(), 113750)  # Verification du cout de l'usine
+        self.assertEqual(
+            Usine.objects.count(), 1
+        )  # Verification du nombre d'usine creee
