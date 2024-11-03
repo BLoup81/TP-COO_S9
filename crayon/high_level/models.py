@@ -29,7 +29,11 @@ class SiegeSocial(Local):
         return self.nom
 
     def json(self):
-        d = {"Nom": self.nom, "Ville": self.ville, "Surface": self.surface}
+        d = {"Nom": self.nom, "Ville": self.ville.nom, "Surface": self.surface}
+        return d
+
+    def json_extend(self):
+        d = {"Nom": self.nom, "Ville": self.json(), "Surface": self.surface}
         return d
 
 
@@ -52,9 +56,6 @@ class Machine(models.Model):
 class Objet(models.Model):
     nom = models.CharField(max_length=100)
     prix = models.IntegerField(max_length=100)
-
-    def __str__(self):
-        return self.nom
 
     class Meta:
         abstract = True
@@ -83,6 +84,10 @@ class QuantiteRessource(models.Model):
     def costs(self):
         return self.quantite * self.ressource.prix
 
+    def json_extend(self):
+        d = {"Ressource": self.ressource.json(), "Quantite": self.quantite}
+        return d
+
 
 class Etape(models.Model):
     nom = models.CharField(max_length=100)
@@ -90,7 +95,7 @@ class Etape(models.Model):
     quantite_ressource = models.ForeignKey(QuantiteRessource, on_delete=models.PROTECT)
     duree = models.IntegerField(max_length=100)
     etape_suivante = models.ForeignKey(
-        "self", blank=True, null=True, on_delete=models.CASCADE
+        "Etape", blank=True, null=True, on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -100,9 +105,17 @@ class Etape(models.Model):
         d = {
             "Nom": self.nom,
             "Machine": self.machine.nom,
-            "Qantite ressource": self.quantite_ressource.json(),
-            "duree": self.duree,
-            "Etape suivante": self.etape_suivante.nom,
+            "Ressource": self.quantite_ressource.ressource.nom,
+            "Durée": self.duree,
+        }
+        return d
+
+    def json_extend(self):
+        d = {
+            "Nom": self.nom,
+            "Machine": self.machine.json(),
+            "Quantité de ressources": self.quantite_ressource.json_extend(),
+            "Durée": self.duree,
         }
         return d
 
@@ -118,22 +131,38 @@ class Stock(models.Model):
         return self.ressource.prix * self.nombre
 
     def json(self):
-        d = {
-            "Ressource": self.ressource.nom,
-            "Nombre": self.nombre,
-            "Usine": self.usine.json(),
-        }
+        d = {"Ressource": self.ressource.nom, "Nombre": self.nombre}
+        return d
+
+    def json_extend(self):
+        d = {"Ressource": self.ressource.json(), "En stock": self.nombre}
         return d
 
 
 class Produit(Objet):
-    premiere_etape = models.CharField(max_length=1000)
+    premiere_etape = models.ForeignKey(Etape, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.nom
 
     def json(self):
-        d = {"Premiere Etape": self.premiere_etape.nom}
+        d = {"Nom": self.nom, "Première étape": self.premiere_etape.nom}
+        return d
+
+    def infoEtape(self):
+        d = {}
+        EtapePresent = self.premiere_etape
+        if EtapePresent is not None:
+            d["Etape 1"] = EtapePresent.json_extend()
+            index = 2
+            while EtapePresent.etape_suivante is not None:
+                EtapePresent = EtapePresent.etape_suivante
+                d["Etape " + str(index)] = EtapePresent.json_extend()
+                index += 1
+        return d
+
+    def json_extend(self):
+        d = {"Nom": self.nom, "Prix": self.prix, "Etape": self.infoEtape()}
         return d
 
 
@@ -156,3 +185,29 @@ class Usine(Local):
 
     def __str__(self):
         return self.nom
+
+    def json(self):
+        d = {"Usine": self.nom}
+        return d
+
+    def infoStock(self):
+        myStock = self.stock.all()
+        d = {}
+        for i in range(len(myStock)):
+            d["Stock " + str(i + 1)] = myStock[i].json_extend()
+        return d
+
+    def infoMachine(self):
+        myMachine = self.machines.all()
+        d = {}
+        for j in range(len(myMachine)):
+            d["Machine " + str(j + 1)] = myMachine[j].json()
+        return d
+
+    def json_extend(self):
+        d = {
+            "Usine": self.nom,
+            "Machine": self.infoMachine(),
+            "Stock": self.infoStock(),
+        }
+        return d

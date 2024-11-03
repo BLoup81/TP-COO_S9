@@ -15,14 +15,14 @@ class viewUsine(DetailView):
     model = models.Usine
 
     def render_to_response(self, context, **response_kwargs):
-        return JsonResponse(self.object.json(), safe=False)
+        return JsonResponse(self.object.json_extend(), safe=False)
 
 
 class viewStock(DetailView):
     model = models.Stock
 
     def render_to_response(self, context, **response_kwargs):
-        return JsonResponse(self.object.json(), safe=False)
+        return JsonResponse(self.object.json_extend(), safe=False)
 
 
 class viewMachine(DetailView):
@@ -36,7 +36,7 @@ class viewSiegeSocial(DetailView):
     model = models.SiegeSocial
 
     def render_to_response(self, context, **response_kwargs):
-        return JsonResponse(self.object.json(), safe=False)
+        return JsonResponse(self.object.json_extend(), safe=False)
 
 
 class viewRessource(DetailView):
@@ -50,18 +50,18 @@ class viewQuantiteRessource(DetailView):
     model = models.QuantiteRessource
 
     def render_to_response(self, context, **response_kwargs):
-        return JsonResponse(self.object.json(), safe=False)
+        return JsonResponse(self.object.json_extend(), safe=False)
 
 
 class viewEtape(DetailView):
     model = models.Etape
 
     def render_to_response(self, context, **response_kwargs):
-        return JsonResponse(self.object.json(), safe=False)
+        return JsonResponse(self.object.json_extend(), safe=False)
 
 
 class viewProduit(DetailView):
     model = models.Produit
 
     def render_to_response(self, context, **response_kwargs):
-        return JsonResponse(self.object.json(), safe=False)
+        return JsonResponse(self.object.json_extend(), safe=False)

@@ -29,7 +29,7 @@ urlpatterns = [
     path("siegesocial/<int:pk>/", views.viewSiegeSocial.as_view(), name="siege social"),
     path("ressource/<int:pk>/", views.viewRessource.as_view(), name="ressource"),
     path(
-        "quatiteressource/<int:pk>/",
+        "quantiteressource/<int:pk>/",
         views.viewQuantiteRessource.as_view(),
         name="quantite ressource",
     ),
