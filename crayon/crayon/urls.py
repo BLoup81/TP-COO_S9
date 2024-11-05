@@ -35,4 +35,5 @@ urlpatterns = [
     ),
     path("etape/<int:pk>/", views.viewEtape.as_view(), name="etape"),
     path("produit/<int:pk>/", views.viewProduit.as_view(), name="produit"),
+    path("api/<int:pk>/", views.ApiView.as_view(), name="api"),
 ]

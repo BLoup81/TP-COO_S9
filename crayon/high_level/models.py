@@ -146,7 +146,7 @@ class Produit(Objet):
         return self.nom
 
     def json(self):
-        d = {"Nom": self.nom, "Prix": self.prix}
+        d = {"Produit": self.nom, "Prix": self.prix}
         return d
 
     def infoEtape(self):
@@ -160,7 +160,7 @@ class Produit(Objet):
         return d
 
     def json_extend(self):
-        d = {"Nom": self.nom, "Prix": self.prix, "Etape": self.infoEtape()}
+        d = {"Produit": self.nom, "Prix": self.prix, "Etape": self.infoEtape()}
         return d
 
 
