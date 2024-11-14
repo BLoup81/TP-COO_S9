@@ -68,19 +68,6 @@ class viewProduit(DetailView):
         return JsonResponse(self.object.json_extend(), safe=False)
 
 
-# class ApiView(DetailView):
-#     model = models.Usine
-
-#     def json(self,**kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['Usine'] = models.Usine.objects.all()
-#         context['Villes'] = models.Ville.objects.all()
-#         return context
-
-#     def render_to_response(self, context, **response_kwargs):
-#         return JsonResponse(self.json(), safe=False)
-
-
 class ApiView(DetailView):
     model = models.Usine
 
@@ -111,6 +98,7 @@ class ApiView(DetailView):
             "Usines": list(
                 context_data["usine"].values()
             ),  # Convertit le queryset en une liste de dictionnaires
+            "Usine_machine": 52,  # list(context_data["high_level_usine_machines"].values()),
             "Villes": list(
                 context_data["villes"].values()
             ),  # Même chose pour les villes

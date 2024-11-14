@@ -33,7 +33,12 @@ class SiegeSocial(Local):
         return d
 
     def json_extend(self):
-        d = {"Nom": self.nom, "Ville": self.json(), "Surface": self.surface}
+        d = {
+            "Nom": self.nom,
+            "ville_id": self.ville.id,
+            "Ville": self.ville.json(),
+            "Surface": self.surface,
+        }
         return d
 
 
@@ -85,7 +90,11 @@ class QuantiteRessource(models.Model):
         return self.quantite * self.ressource.prix
 
     def json_extend(self):
-        d = {"Ressource": self.ressource.json(), "Quantite": self.quantite}
+        d = {
+            "ressource_id": self.ressource.id,
+            "Ressource": self.ressource.json(),
+            "Quantite": self.quantite,
+        }
         return d
 
 
@@ -113,10 +122,17 @@ class Etape(models.Model):
     def json_extend(self):
         d = {
             "Nom": self.nom,
+            "machine_id": self.machine.id,
             "Machine": self.machine.json(),
+            "quantite_ressource_id": self.quantite_ressource.id,
             "Quantité de ressources": self.quantite_ressource.json_extend(),
             "Durée": self.duree,
         }
+        if self.etape_suivante is not None:
+            d["etape_suivante_id"] = self.etape_suivante.id
+        else:
+            d["etape_suivante_id"] = "none"
+
         return d
 
 
@@ -135,7 +151,11 @@ class Stock(models.Model):
         return d
 
     def json_extend(self):
-        d = {"Ressource": self.ressource.json(), "En stock": self.nombre}
+        d = {
+            "ressource_id": self.ressource.id,
+            "Ressource": self.ressource.json(),
+            "En stock": self.nombre,
+        }
         return d
 
 
@@ -146,21 +166,15 @@ class Produit(Objet):
         return self.nom
 
     def json(self):
-        d = {"Produit": self.nom, "Prix": self.prix}
-        return d
-
-    def infoEtape(self):
-        d = []
-        EtapePresent = self.premiere_etape
-        if EtapePresent is not None:
-            d.append(EtapePresent.json_extend())
-            while EtapePresent.etape_suivante is not None:
-                EtapePresent = EtapePresent.etape_suivante
-                d.append(EtapePresent.json_extend())
+        d = {"Nom": self.nom, "Prix": self.prix}
         return d
 
     def json_extend(self):
-        d = {"Produit": self.nom, "Prix": self.prix, "Etape": self.infoEtape()}
+        d = {
+            "Nom": self.nom,
+            "Prix": self.prix,
+            "premiere_etape_id": self.premiere_etape.id,
+        }  # "Etape": self.infoEtape()}
         return d
 
 
@@ -185,27 +199,29 @@ class Usine(Local):
         return self.nom
 
     def json(self):
-        d = {"Usine": self.nom}
+        d = {"Nom": self.nom, "Ville": self.ville.json(), "Surface": self.surface}
         return d
 
     def infoStock(self):
         myStocks = self.stock.all()
         d = []
         for i in range(len(myStocks)):
-            d.append(myStocks[i].json_extend())
+            d.append(myStocks[i].id)
         return d
 
     def infoMachine(self):
         myMachines = self.machines.all()
         d = []
         for j in range(len(myMachines)):
-            d.append(myMachines[j].json())
+            d.append(myMachines[j].id)
         return d
 
     def json_extend(self):
         d = {
-            "Usine": self.nom,
-            "Machines": self.infoMachine(),
-            "Stocks": self.infoStock(),
+            "Nom": self.nom,
+            "ville_id": self.ville.id,
+            "Surface": self.surface,
+            "machines_id": self.infoMachine(),
+            "stocks_id": self.infoStock(),
         }
         return d
