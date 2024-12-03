@@ -89,29 +89,29 @@ class ApiView(DetailView):
         # Vous pouvez ajouter d'autres données ici si nécessaire.
         return context
 
-    def render_to_response(self, context, **response_kwargs):
-        # Récupérer les données contextuelles via get_context_data()
+    def setIdTab(self, context, type, **response_kwargs):
         context_data = self.get_context_data(**context)
 
-        # Sérialisation du contexte en un format approprié pour JsonResponse
+        d = []
+        for i in range(len(context_data[type])):
+            d.append(context_data[type][i].id)
+        return d
+
+    def render_to_response(self, context, **response_kwargs):
+        # Récupérer les données contextuelles via get_context_data()
+
         response_data = {
-            "Usines": list(
-                context_data["usine"].values()
-            ),  # Convertit le queryset en une liste de dictionnaires
-            "Usine_machine": 52,  # list(context_data["high_level_usine_machines"].values()),
-            "Villes": list(
-                context_data["villes"].values()
-            ),  # Même chose pour les villes
-            "Stocks": list(context_data["stocks"].values()),
-            "Machines": list(context_data["machines"].values()),
-            "Sieges socials": list(context_data["siegeSocials"].values()),
-            "Ressources": list(context_data["ressources"].values()),
-            "Quantités de ressources": list(
-                context_data["quantiteRessources"].values()
+            "Usines": self.setIdTab(context, "usine", **response_kwargs),
+            "Villes": self.setIdTab(context, "villes", **response_kwargs),
+            "Stocks": self.setIdTab(context, "stocks", **response_kwargs),
+            "Machines": self.setIdTab(context, "machines", **response_kwargs),
+            "Sieges sociaux": self.setIdTab(context, "siegeSocials", **response_kwargs),
+            "Ressources": self.setIdTab(context, "ressources", **response_kwargs),
+            "Quantités de ressources": self.setIdTab(
+                context, "quantiteRessources", **response_kwargs
             ),
-            "Etapes": list(context_data["etapes"].values()),
-            "Produits": list(context_data["produits"].values()),
+            "Etapes": self.setIdTab(context, "etapes", **response_kwargs),
+            "Produits": self.setIdTab(context, "produits", **response_kwargs),
         }
 
-        # Retourne la réponse JSON
         return JsonResponse(response_data, safe=False)

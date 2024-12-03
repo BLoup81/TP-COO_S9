@@ -170,13 +170,237 @@ auto newProduit(int id) -> Produit;
 
 auto newUsine(int id) -> Usine;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SiegeSocial2 {
+ private:
+  string nom;
+  unique_ptr<Ville> ville;
+  int surface;
+
+ public:
+  SiegeSocial2(const string _nom, const Ville& _ville,
+               int _surface);  // Constructeur
+  SiegeSocial2(int id);        // Constructeur par id
+  SiegeSocial2() {}            // Constructeur par defaut
+
+  friend ostream& operator<<(ostream& os, const SiegeSocial2& siegesocial);
+};
+
+SiegeSocial2::SiegeSocial2(const string _nom, const Ville& _ville,
+                           int _surface) {
+  nom = _nom;
+  ville = make_unique<Ville>(_ville);
+  surface = _surface;
+}
+
+SiegeSocial2::SiegeSocial2(int id) {
+  cpr::Response r = cpr::Get(
+      cpr::Url{"http://localhost:8000/siegesocial/" + to_string(id) + "/"});
+
+  r.text;
+
+  auto j = json::parse(r.text);
+  nom = j["Nom"];
+  ville = make_unique<Ville>(newVille(j["ville_id"]));
+  surface = j["Surface"];
+}
+
+ostream& operator<<(ostream& os, const SiegeSocial2& siegesocial) {
+  os << "Siège social:" << endl;
+  os << "\tNom:" << siegesocial.nom << endl;
+  os << "\t" << *siegesocial.ville;
+  os << "\tSurface:" << siegesocial.surface << endl;
+  return os;
+}
+
+auto newSiegeSocial2(const string _nom, const Ville& _ville, int _surface)
+    -> SiegeSocial2;
+auto newSiegeSocial2(int id) -> SiegeSocial2;
+
+auto newSiegeSocial2(const string _nom, const Ville& _ville, int _surface)
+    -> SiegeSocial2 {
+  SiegeSocial2 siege(_nom, _ville, _surface);
+  cout << siege << endl;
+  return siege;
+}
+
+auto newSiegeSocial2(int id) -> SiegeSocial2 {
+  SiegeSocial2 S(id);
+  return S;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class Stock2 {
+ private:
+  unique_ptr<Ressource> ressource;
+  int nombre;
+
+ public:
+  Stock2(const Ressource& _R, int _nombre);  // Constructeur
+  Stock2(int id);                            // COnstructeur par id
+  Stock2() {}                                // Constructeur par defaut
+
+  friend ostream& operator<<(ostream& os, const Stock2& S);
+};
+
+Stock2::Stock2(const Ressource& _R, int _nombre) {
+  ressource = make_unique<Ressource>(_R);
+  nombre = _nombre;
+}
+
+Stock2::Stock2(int id) {
+  cpr::Response r =
+      cpr::Get(cpr::Url{"http://localhost:8000/stock/" + to_string(id) + "/"});
+
+  r.text;
+  auto j = json::parse(r.text);
+  ressource = make_unique<Ressource>(newRessource(j["ressource_id"]));
+  nombre = j["En stock"];
+}
+
+ostream& operator<<(ostream& os, const Stock2& S) {
+  os << "Stock" << endl;
+  os << "\t" << *S.ressource;
+  os << "\tNombre: " << S.nombre << endl;
+  return os;
+}
+
+auto newStock2(const Ressource& R, int nombre) -> Stock2;
+auto newStock2(int id) -> Stock2;
+
+auto newStock2(const Ressource& R, int nombre) -> Stock2 {
+  Stock2 S(R, nombre);
+  cout << S << endl;
+  return S;
+}
+
+auto newStock2(int id) -> Stock2 {
+  Stock2 S(id);
+  return S;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+class QuantiteRessource2 {
+ private:
+  unique_ptr<Ressource> R;
+  int quantite;
+
+ public:
+  QuantiteRessource2(const Ressource& _R, int _quantite);  // Constructeur
+  QuantiteRessource2(int id);  // COnstructeur par id
+  QuantiteRessource2() {}      // Constructeur par defaut
+
+  friend ostream& operator<<(ostream& os, const QuantiteRessource2& Q);
+};
+
+auto newQuantiteRessource2(const Ressource& R, int quantite)
+    -> QuantiteRessource2;
+auto newQuantiteRessource2(int id) -> QuantiteRessource2;
+
+QuantiteRessource2::QuantiteRessource2(const Ressource& _R, int _quantite) {
+  R = make_unique<Ressource>(_R);
+  quantite = _quantite;
+}
+
+QuantiteRessource2::QuantiteRessource2(int id) {
+  cpr::Response r = cpr::Get(cpr::Url{
+      "http://localhost:8000/quantiteressource/" + to_string(id) + "/"});
+
+  r.text;
+  auto j = json::parse(r.text);
+  R = make_unique<Ressource>(newRessource(j["ressource_id"]));
+  quantite = j["Quantite"];
+}
+
+ostream& operator<<(ostream& os, const QuantiteRessource2& Q) {
+  os << "Quantite de Ressource:" << endl;
+  os << "\t" << *Q.R;
+  os << "\tQuantite:" << Q.quantite << endl;
+  return os;
+}
+
+auto newQuantiteRessource2(const Ressource& R, int quantite)
+    -> QuantiteRessource2 {
+  QuantiteRessource2 Q(R, quantite);
+  return Q;
+}
+
+auto newQuantiteRessource2(int id) -> QuantiteRessource2 {
+  QuantiteRessource2 Q(id);
+  return Q;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+class Etape2 {
+ private:
+  string nom;
+  unique_ptr<Machine> M;
+  unique_ptr<QuantiteRessource2> Q;
+  int duree;
+  optional<unique_ptr<Etape2>> etapeSuivante;
+
+ public:
+  Etape2(const string _nom, const Machine& _M, const QuantiteRessource2& _Q,
+         int _duree);  // Constructeur
+  Etape2(int id);      // Constructeur par id
+  Etape2() {}          // Constructeur par defaut
+
+  void getEtapeSuivante(int id);
+
+  friend ostream& operator<<(ostream& os, const Etape2& E);
+};
+
+auto newEtape2(int id) -> Etape2;
+
+// Etape2::Etape2(const string _nom, const Machine& _M, const
+// QuantiteRessource2& _Q, int _duree) {
+//   nom = _nom;
+//   M = make_unique<Machine>(_M);
+//   Q = make_unique<QuantiteRessource2>(1); // Mettre les paramètres du
+//   constructeurs duree = _duree;
+// }
+
+Etape2::Etape2(int id) {
+  cpr::Response r =
+      cpr::Get(cpr::Url{"http://localhost:8000/etape/" + to_string(id) + "/"});
+
+  r.text;
+  auto j = json::parse(r.text);
+  nom = j["Nom"];
+  M = make_unique<Machine>(j["machine_id"]);
+  Q = make_unique<QuantiteRessource2>(j["quantite_ressource_id"]);
+  duree = j["Durée"];
+  if (j["etape_suivante_id"] != "none") {
+    etapeSuivante = make_unique<Etape2>(j["etape_suivante_id"]);
+  }
+}
+
+ostream& operator<<(ostream& os, const Etape2& E) {
+  os << "Etape:" << endl;
+  os << "\tNom:" << E.nom << endl;
+  os << "\t" << *E.M << endl;
+  os << "\t" << *E.Q << endl;
+  os << "\tDuree:" << E.duree << endl;
+  if (E.etapeSuivante) {
+    os << "\t" << E.etapeSuivante << endl;
+  }
+  return os;
+}
+
+auto newEtape2(int id) -> Etape2 {
+  // Etape2 E(id);
+  Etape2 E;
+  return E;
+}
+
 //////////////////////////////////////////////
 // Main
 
 int main() {
-  Usine U(1);
+  Etape2 E(1);
 
-  cout << U << endl;
+  cout << E << endl;
 
   return 0;
 }
@@ -194,12 +418,8 @@ Ville::Ville(int _code_postal, string _nom, int _prix_m2) {
 }
 
 Ville::Ville(int id) {
-  cpr::Response r = cpr::Get(
-      cpr::Url{"http://localhost:8000/ville/" + to_string(id) +
-               "/"});  //,
-                       // cpr::Parameters{{"ville", "true"}, {"key", "value"}});
-  // r.status_code;
-  // r.header["content-type"];
+  cpr::Response r =
+      cpr::Get(cpr::Url{"http://localhost:8000/ville/" + to_string(id) + "/"});
   r.text;
 
   auto j = json::parse(r.text);
@@ -238,8 +458,8 @@ SiegeSocial::SiegeSocial(const string _nom, const Ville& _ville, int _surface) {
 }
 
 SiegeSocial::SiegeSocial(int id) {
-  cpr::Response r = cpr::Get(cpr::Url{"http://localhost:8000/siegesocial/" +
-                                      to_string(id) + "/"});  //,
+  cpr::Response r = cpr::Get(
+      cpr::Url{"http://localhost:8000/siegesocial/" + to_string(id) + "/"});
 
   r.text;
 
@@ -274,7 +494,7 @@ auto newSiegeSocial(int id) -> SiegeSocial {
 /// Machine
 Machine::Machine(int id) {
   cpr::Response r = cpr::Get(
-      cpr::Url{"http://localhost:8000/machine/" + to_string(id) + "/"});  //,
+      cpr::Url{"http://localhost:8000/machine/" + to_string(id) + "/"});
 
   r.text;
   auto j = json::parse(r.text);
@@ -318,7 +538,7 @@ Ressource::Ressource(const string _nom, int _prix) {
 
 Ressource::Ressource(int id) {
   cpr::Response r = cpr::Get(
-      cpr::Url{"http://localhost:8000/ressource/" + to_string(id) + "/"});  //,
+      cpr::Url{"http://localhost:8000/ressource/" + to_string(id) + "/"});
 
   r.text;
   auto j = json::parse(r.text);
@@ -352,13 +572,12 @@ Stock::Stock(const Ressource& _R, int _nombre) {
 }
 
 Stock::Stock(int id) {
-  cpr::Response r = cpr::Get(
-      cpr::Url{"http://localhost:8000/stock/" + to_string(id) + "/"});  //,
+  cpr::Response r =
+      cpr::Get(cpr::Url{"http://localhost:8000/stock/" + to_string(id) + "/"});
 
   r.text;
   auto j = json::parse(r.text);
-  R = newRessource(j["ressource_id"]);  // newRessource(j["Ressource"]["Nom"],
-                                        // j["Ressource"]["Prix"]);
+  R = newRessource(j["ressource_id"]);
   nombre = j["En stock"];
 }
 
@@ -389,7 +608,7 @@ QuantiteRessource::QuantiteRessource(const Ressource& _R, int _quantite) {
 
 QuantiteRessource::QuantiteRessource(int id) {
   cpr::Response r = cpr::Get(cpr::Url{
-      "http://localhost:8000/quantiteressource/" + to_string(id) + "/"});  //,
+      "http://localhost:8000/quantiteressource/" + to_string(id) + "/"});
 
   r.text;
   auto j = json::parse(r.text);
