@@ -130,8 +130,10 @@ class Etape(models.Model):
         }
         if self.etape_suivante is not None:
             d["etape_suivante_id"] = self.etape_suivante.id
+            d["Etape suivante"] = self.etape_suivante.json_extend()
         else:
             d["etape_suivante_id"] = "none"
+            d["Etape suivante"] = "none"
 
         return d
 
@@ -174,6 +176,7 @@ class Produit(Objet):
             "Nom": self.nom,
             "Prix": self.prix,
             "premiere_etape_id": self.premiere_etape.id,
+            "Etape": self.premiere_etape.json_extend(),
         }  # "Etape": self.infoEtape()}
         return d
 
@@ -202,26 +205,43 @@ class Usine(Local):
         d = {"Nom": self.nom, "Ville": self.ville.json(), "Surface": self.surface}
         return d
 
-    def infoStock(self):
+    def infoStockId(self):
         myStocks = self.stock.all()
         d = []
         for i in range(len(myStocks)):
             d.append(myStocks[i].id)
         return d
 
-    def infoMachine(self):
+    def InfoStock(self):
+        myStocks = self.stock.all()
+        d = []
+        for i in range(len(myStocks)):
+            d.append(myStocks[i].json_extend())
+        return d
+
+    def infoMachineId(self):
         myMachines = self.machines.all()
         d = []
         for j in range(len(myMachines)):
             d.append(myMachines[j].id)
         return d
 
+    def infoMachine(self):
+        myMachines = self.machines.all()
+        d = []
+        for j in range(len(myMachines)):
+            d.append(myMachines[j].json())
+        return d
+
     def json_extend(self):
         d = {
             "Nom": self.nom,
             "ville_id": self.ville.id,
+            "Ville": self.ville.json(),
             "Surface": self.surface,
-            "machines_id": self.infoMachine(),
-            "stocks_id": self.infoStock(),
+            "machines_id": self.infoMachineId(),
+            "Machines": self.infoMachine(),
+            "stocks_id": self.infoStockId(),
+            "Stocks": self.InfoStock(),
         }
         return d
