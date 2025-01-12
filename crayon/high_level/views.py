@@ -72,10 +72,10 @@ class ApiView(DetailView):
     model = models.Usine
 
     def get_context_data(self, **kwargs):
-        # Appel à la méthode de la classe parente pour obtenir le contexte par défaut
+        # Appel a la methode de la classe parente pour obtenir le contexte par defaut
         context = super().get_context_data(**kwargs)
 
-        # Récupérer toutes les usines et villes
+        # Recuperer le contexte de toutes les instances
         context["usine"] = models.Usine.objects.all()
         context["villes"] = models.Ville.objects.all()
         context["stocks"] = models.Stock.objects.all()
@@ -86,10 +86,11 @@ class ApiView(DetailView):
         context["etapes"] = models.Etape.objects.all()
         context["produits"] = models.Produit.objects.all()
 
-        # Vous pouvez ajouter d'autres données ici si nécessaire.
         return context
 
-    def setIdTab(self, context, type, **response_kwargs):
+    def setIdTab(
+        self, context, type, **response_kwargs
+    ):  # Methode pour recuperer tous les identifiants des instances du meme type
         context_data = self.get_context_data(**context)
 
         d = []
@@ -98,8 +99,7 @@ class ApiView(DetailView):
         return d
 
     def render_to_response(self, context, **response_kwargs):
-        # Récupérer les données contextuelles via get_context_data()
-
+        # Recuperation des identifiants de toutes les instances pour la serialisation
         response_data = {
             "Usines": self.setIdTab(context, "usine", **response_kwargs),
             "Villes": self.setIdTab(context, "villes", **response_kwargs),

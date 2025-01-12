@@ -3,24 +3,30 @@ from django.db import models
 
 
 class Ville(models.Model):
-    nom = models.CharField(max_length=100)
-    code_postal = models.IntegerField(max_length=5)
-    prix_m2 = models.IntegerField(max_length=100)
+    nom = models.CharField(max_length=100)  # Affectation d'une chaine de caracteres
+    code_postal = models.IntegerField(max_length=5)  # Affectation d'un entier
+    prix_m2 = models.IntegerField(max_length=100)  # Affectation d'un entier
 
-    def __str__(self):
-        return self.nom
+    def __str__(self):  # Fonction d'affichage pour Django (dans ce cas)
+        return self.nom  # Affiche uniquement le nom
 
-    def json(self):
-        d = {"Nom": self.nom, "Code postal": self.code_postal, "Prix/m2": self.prix_m2}
+    def json(self):  # Fonction de serialisation par json
+        d = {  # Creation d'un dictionnaire
+            "Nom": self.nom,
+            "Code postal": self.code_postal,
+            "Prix/m2": self.prix_m2,
+        }
         return d
 
 
 class Local(models.Model):
     nom = models.CharField(max_length=100)
-    ville = models.ForeignKey(Ville, on_delete=models.PROTECT)
+    ville = models.ForeignKey(
+        Ville, on_delete=models.PROTECT
+    )  # Affection d'une instance d'une autre classe
     surface = models.IntegerField()
 
-    class Meta:
+    class Meta:  # Local est une classe abstraite
         abstract = True
 
 
@@ -35,8 +41,8 @@ class SiegeSocial(Local):
     def json_extend(self):
         d = {
             "Nom": self.nom,
-            "ville_id": self.ville.id,
-            "Ville": self.ville.json(),
+            "ville_id": self.ville.id,  # Serialise l'identifiant de la ville de la base de donnees
+            "Ville": self.ville.json(),  # Srialise la ville et ses attribut
             "Surface": self.surface,
         }
         return d
@@ -86,7 +92,7 @@ class QuantiteRessource(models.Model):
         d = {"Nom": self.ressource.nom, "Quantite": self.quantite}
         return d
 
-    def costs(self):
+    def costs(self):  # Retourne la valeur monetaire de la quantite de ressource
         return self.quantite * self.ressource.prix
 
     def json_extend(self):
@@ -104,7 +110,10 @@ class Etape(models.Model):
     quantite_ressource = models.ForeignKey(QuantiteRessource, on_delete=models.PROTECT)
     duree = models.IntegerField(max_length=100)
     etape_suivante = models.ForeignKey(
-        "Etape", blank=True, null=True, on_delete=models.CASCADE
+        "Etape",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,  # L'etape suivante peut etre null (pas d'etape suivante)
     )
 
     def __str__(self):
@@ -128,11 +137,15 @@ class Etape(models.Model):
             "Quantité de ressources": self.quantite_ressource.json_extend(),
             "Durée": self.duree,
         }
-        if self.etape_suivante is not None:
-            d["etape_suivante_id"] = self.etape_suivante.id
+        if self.etape_suivante is not None:  # Test si l'etape suivante existe
+            d["etape_suivante_id"] = (
+                self.etape_suivante.id
+            )  # Si elle existe, la serialise avec son identifiant
             d["Etape suivante"] = self.etape_suivante.json_extend()
         else:
-            d["etape_suivante_id"] = "none"
+            d["etape_suivante_id"] = (
+                "none"  # Sinon, print none dans le json pour informer le code C++ de sa non-existence
+            )
             d["Etape suivante"] = "none"
 
         return d
@@ -140,12 +153,12 @@ class Etape(models.Model):
 
 class Stock(models.Model):
     ressource = models.ForeignKey(Ressource, null=True, on_delete=models.CASCADE)
-    nombre = models.IntegerField(max_length=100)  # Nombre de ressources différentes
+    nombre = models.IntegerField(max_length=100)
 
-    def __str__(self):
+    def __str__(self):  # Affiche le nom de la ressource en stock et la quantité
         return self.ressource.nom + " (" + str(self.nombre) + ")"
 
-    def costs(self):
+    def costs(self):  # Calcul la valeur monetaire du stock
         return self.ressource.prix * self.nombre
 
     def json(self):
@@ -177,7 +190,7 @@ class Produit(Objet):
             "Prix": self.prix,
             "premiere_etape_id": self.premiere_etape.id,
             "Etape": self.premiere_etape.json_extend(),
-        }  # "Etape": self.infoEtape()}
+        }
         return d
 
 
@@ -186,17 +199,17 @@ class Usine(Local):
     stock = models.ManyToManyField(Stock)
 
     def costs(self):
-        cout = self.surface * self.ville.prix_m2
+        cout = self.surface * self.ville.prix_m2  # Calcul du cout d'achat des locaux
 
-        stockage = self.stock.all()
+        stockage = self.stock.all()  # Affectation de tous les stocks a une variable
         for i in range(len(stockage)):
-            cout += stockage[i].costs()
+            cout += stockage[i].costs()  # Ajout des couts des stocks au cout total
 
-        machi = self.machines.all()
+        machi = self.machines.all()  # Affectation de toutes les machines a une variable
         for i in range(len(machi)):
-            cout += machi[i].costs()
+            cout += machi[i].costs()  # Ajout des couts des machines au cout total
 
-        return cout
+        return cout  # Retourne le cout total
 
     def __str__(self):
         return self.nom
@@ -206,13 +219,16 @@ class Usine(Local):
         return d
 
     def infoStockId(self):
+        # Le nombre de stocks etant variable, cette methode creer
+        # un tableau de serialisation des stocks pour les identifiants
         myStocks = self.stock.all()
         d = []
         for i in range(len(myStocks)):
-            d.append(myStocks[i].id)
+            d.append(myStocks[i].id)  # Ajoute le i_eme identifiant au tableau
         return d
 
     def InfoStock(self):
+        # Creer un tableau de serialisation pour les informations des stocks
         myStocks = self.stock.all()
         d = []
         for i in range(len(myStocks)):
@@ -220,6 +236,8 @@ class Usine(Local):
         return d
 
     def infoMachineId(self):
+        # Le nombre de machines etant variable, cette methode creer
+        # un tableau de serialisation des machines pour les identifiants
         myMachines = self.machines.all()
         d = []
         for j in range(len(myMachines)):
@@ -227,6 +245,7 @@ class Usine(Local):
         return d
 
     def infoMachine(self):
+        # Creer un tableau de serialisation pour les informations des machines
         myMachines = self.machines.all()
         d = []
         for j in range(len(myMachines)):
@@ -245,3 +264,54 @@ class Usine(Local):
             "Stocks": self.InfoStock(),
         }
         return d
+
+    def achatStock(self, produit, recette):
+        nbProduit = recette / produit.prix  # Calcul du nombre de produit a realiser
+
+        etape = produit.premiere_etape
+        while etape is not None:  # Tant qu'il y a une etape pour realiser le produit
+            sameRessource = False  # Drapeau pour savoir si il existe un stock correspondant a la ressource de l'etape
+            qt = etape.quantite_ressource
+            stocks = self.stock.all()  # Recupere les stocks de l'usine
+
+            for i in range(len(stocks)):  # Parcours les stocks de l'usine
+                if (
+                    stocks[i].ressource.nom == qt.ressource.nom
+                ):  # Si il existe un stock correspondant a la ressource de l'etape
+                    nombreRessource = (
+                        nbProduit * qt.quantite - stocks[i].nombre
+                    )  # Calcul de la difference de quantite
+                    sameRessource = True  # Leve de drapeau car il existe un stock correspondant a la ressource
+                    if (
+                        nombreRessource > 0
+                    ):  # Si il n'y a pas assez de ressource dans le stock
+                        print(
+                            nombreRessource,
+                            "de",
+                            qt.ressource.nom,
+                            "ont ete achete pour",
+                            produit.prix,
+                            "euros.",
+                        )
+                        stocks[
+                            i
+                        ].nombre += nombreRessource  # Completion du stock pour realiser les produits necessaire
+                        stocks[i].save()  # Sauvegarde dans la base de donnees
+
+            if (
+                sameRessource is False
+            ):  # Si il n'existe pas de stock correspondant a la ressource de l'etape
+                nombreRessource = (
+                    nbProduit * qt.quantite
+                )  # Quantite de ressource a acheter
+                print("Creation d'un stock de", nombreRessource, "de", qt.ressource.nom)
+                nouveau_stock = Stock.objects.create(
+                    ressource=qt.ressource, nombre=nombreRessource
+                )  # Creation d'un nouveau stock
+                self.stock.add(
+                    nouveau_stock
+                )  # Ajout du nouveau stock a la base de donnees
+
+            etape = etape.etape_suivante
+
+        return nbProduit
