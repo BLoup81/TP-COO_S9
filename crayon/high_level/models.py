@@ -291,7 +291,7 @@ class Usine(Local):
                             qt.ressource.nom,
                             "ont ete achete pour",
                             produit.prix,
-                            "euros.",
+                            "euros l'unite.",
                         )
                         stocks[
                             i
@@ -313,5 +313,3 @@ class Usine(Local):
                 )  # Ajout du nouveau stock a la base de donnees
 
             etape = etape.etape_suivante
-
-        return nbProduit
