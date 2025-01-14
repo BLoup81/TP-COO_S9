@@ -1,4 +1,4 @@
-# Projet de conception orieté objet en 2ème année de master ISTR
+# Projet de conception orienté objet en 2ème année de master ISTR
 ## 2024/2025
 ### Rebrab Dacine & Bessard Loup
 
