@@ -2,7 +2,7 @@
 ## 2024/2025
 ### Rebrab Dacine & Bessard Loup
 
-## Onjectif
+## Objectif
 
 Ce projet est réalisé en Python (version 3.10.12) et C++ (version 11.4.0). Il créer une application web local accessible via l'url *http://localhost:8000/admin*. Cette application permet à une hypothétique entreprise de renseigner certaines de ses informations ci-après:
 - Nom
@@ -23,7 +23,7 @@ Les méthodes **__str__()** permettent d'afficher les instances des classes dans
 
 L'utilisation de Django permet la création d'une base de données qui est ensuite sérialisée au format *JSON*. Ainsi, les méthodes **json()** sérialisent les données propres aux instances quant aux **json_extend()**, elles sérialisent les données propres aux instances ainsi que les données de leurs instances en attribut.
 
-La classe **Usine** possède les méthodes **infoStock()**, **infoStockId()**, **infoMachine()** et **infoMachineId()** qui permettent de mettre dans un tableaux les données et les identifiants de toutes les machines et tous les stocks appartenant à l'usine avant de les sérialiser dans **json_extend()**. La méthode **achatStock()** réalise l'achat automatique d'un stock de ressource nécessaire à la production d'une certaine quantité de produit dans l'optique de réaliser des recettes précises.
+La classe **Usine** possède les méthodes **infoStock()**, **infoStockId()**, **infoMachine()** et **infoMachineId()** qui permettent de mettre dans un tableau les données et les identifiants de toutes les machines et tous les stocks appartenant à l'usine avant de les sérialiser dans **json_extend()**. La méthode **achatStock()** réalise l'achat automatique d'un stock de ressource nécessaire à la production d'une certaine quantité de produit dans l'optique de réaliser des recettes précises.
 
 ## C++
 
